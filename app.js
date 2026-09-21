@@ -2,12 +2,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyA1VUXm-OtZE3oX4UgvO6VYUKY7RcneKDg",
+  authDomain: "sler-chat-lab.firebaseapp.com",
+  databaseURL: "https://sler-chat-lab-default-rtdb.firebaseio.com",
+  projectId: "sler-chat-lab",
+  storageBucket: "sler-chat-lab.firebasestorage.app",
+  messagingSenderId: "594954603335",
+  appId: "1:594954603335:web:30014b07c4fecc27521a62",
+  measurementId: "G-F1QW9J6B0P"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -24,12 +26,12 @@ const btnLogout = document.getElementById('btn-logout');
 // Control de Sesión
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        authSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
-        userInfo.textContent = `Hola, ${user.displayName || user.email}`;
+        if (authSection) authSection.classList.add('hidden');
+        if (appSection) appSection.classList.remove('hidden');
+        if (userInfo) userInfo.textContent = `Hola, ${user.displayName || user.email}`;
     } else {
-        authSection.classList.remove('hidden');
-        appSection.classList.add('hidden');
+        if (authSection) authSection.classList.remove('hidden');
+        if (appSection) appSection.classList.add('hidden');
     }
 });
 
@@ -47,9 +49,9 @@ if (btnLogout) {
     });
 }
 
-// Lógica de procesamiento S.L.E.R. y Gemini (vinculada de forma segura)
+// Lógica de procesamiento S.L.E.R. y Gemini
 async function procesarMensajeConGemini(textoOriginal, anchoLinea) {
-    const GEMINI_API_KEY = "TU_API_KEY_DE_GEMINI"; 
+    const GEMINI_API_KEY = "AQAb8RN6KHlXxCJ89VgxJpjviBkQLPTODL5EgW0Qcbkn1j33VDpA"; // Recuerda usar tu clave de Gemini sin espacios iniciales
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const promptSistema = `Eres un filtro conversacional de seguridad para una red social. Tu única tarea es analizar el siguiente texto: si contiene lenguaje tóxico, agresivo, insultos o contenido inadecuado, debes neutralizarlo y reescribirlo con un tono totalmente amable, neutral y seguro. Si el texto ya es adecuado, mantenlo intacto. Devuelve ÚNICAMENTE el texto limpio resultante, sin explicaciones ni comillas: "${textoOriginal}"`;
