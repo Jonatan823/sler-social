@@ -1,135 +1,225 @@
+// Importar los SDKs de Firebase necesarios desde los CDNs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// Configuración de Firebase (asegúrate de que coincida con tus credenciales)
 const firebaseConfig = {
-  apiKey: "AIzaSyA1VUXm-OtZE3oX4UgvO6VYUKY7RcneKDg",
+  apiKey: "TU_API_KEY",
   authDomain: "sler-chat-lab.firebaseapp.com",
-  databaseURL: "https://sler-chat-lab-default-rtdb.firebaseio.com",
   projectId: "sler-chat-lab",
-  storageBucket: "sler-chat-lab.firebasestorage.app",
-  messagingSenderId: "594954603335",
-  appId: "1:594954603335:web:30014b07c4fecc27521a62",
-  measurementId: "G-F1QW9J6B0P"
+  storageBucket: "sler-chat-lab.appspot.com",
+  messagingSenderId: "TU_MESSAGING_SENDER_ID",
+  appId: "TU_APP_ID"
 };
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 
-// Elementos DOM generales
-const authSection = document.getElementById('auth-section');
-const appSection = document.getElementById('app-section');
-const userInfo = document.getElementById('user-info');
-const btnLoginGoogle = document.getElementById('btn-login-google');
-const btnLogout = document.getElementById('btn-logout');
+// Elementos del DOM
+const loginView = document.getElementById('login-view');
+const contactsView = document.getElementById('contacts-view');
+const chatView = document.getElementById('chat-view');
 
-// Control de Sesión
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const userGreeting = document.getElementById('user-greeting');
+
+const contactsList = document.getElementById('contacts-list');
+const activeChatName = document.getElementById('active-chat-name');
+const backToContactsBtn = document.getElementById('back-to-contacts');
+
+const messageInput = document.getElementById('message-input');
+const micBtn = document.getElementById('mic-btn');
+const processPreviewBtn = document.getElementById('process-preview-btn');
+const previewContainer = document.getElementById('preview-container');
+const previewTextBox = document.getElementById('preview-text-box');
+
+const sendTextBtn = document.getElementById('send-text-btn');
+const sendVoiceBtn = document.getElementById('send-voice-btn');
+const messagesContainer = document.getElementById('messages-container');
+
+let currentContact = null;
+let mensajePurificadoActual = "";
+
+// 1. Manejo de Estado de Autenticación
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (authSection) authSection.classList.add('hidden');
-        if (appSection) appSection.classList.remove('hidden');
-        if (userInfo) userInfo.textContent = `Hola, ${user.displayName || user.email}`;
-    } else {
-        if (authSection) authSection.classList.remove('hidden');
-        if (appSection) appSection.classList.add('hidden');
-    }
+  if (user) {
+    // Usuario logueado: mostrar vista de contactos, ocultar login y chat
+    loginView.classList.add('hidden');
+    contactsView.classList.remove('hidden');
+    chatView.classList.add('hidden');
+    userGreeting.textContent = `Hola, ${user.displayName || 'usuario'}`;
+  } else {
+    // Usuario desconectado: mostrar login
+    loginView.classList.remove('hidden');
+    contactsView.classList.add('hidden');
+    chatView.classList.add('hidden');
+  }
 });
 
-if (btnLoginGoogle) {
-    btnLoginGoogle.addEventListener('click', () => {
-        signInWithPopup(auth, googleProvider).catch((error) => {
-            console.error("Error en login:", error);
-        });
-    });
+// Evento de Login con Google
+loginBtn.addEventListener('click', async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    console.error("Error en login:", error);
+  }
+});
+
+// Evento de Cerrar Sesión
+logoutBtn.addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+});
+
+// 2. Navegación entre Contactos y Chat
+contactsList.addEventListener('click', (e) => {
+  const item = e.target.closest('.contact-item');
+  if (!item) return;
+
+  const contactName = item.getAttribute('data-contact-name');
+  currentContact = contactName;
+  activeChatName.textContent = `Chat con ${contactName}`;
+  
+  // Limpiar estados anteriores de composición
+  messageInput.value = "";
+  previewContainer.classList.add('hidden');
+  messagesContainer.innerHTML = "";
+
+  // Cambiar vista a Chat
+  contactsView.classList.add('hidden');
+  chatView.classList.remove('hidden');
+});
+
+backToContactsBtn.addEventListener('click', () => {
+  chatView.classList.add('hidden');
+  contactsView.classList.remove('hidden');
+});
+
+// 3. Procesamiento con Gemini (Filtro único estricto y formato S.L.E.R.)
+processPreviewBtn.addEventListener('click', async () => {
+  const textoOriginal = messageInput.value.trim();
+  if (!textoOriginal) return;
+
+  processPreviewBtn.textContent = "Procesando...";
+  processPreviewBtn.disabled = true;
+
+  try {
+    mensajePurificadoActual = await procesarMensajeConGemini(textoOriginal);
+    previewTextBox.textContent = mensajePurificadoActual;
+    previewContainer.classList.remove('hidden');
+  } catch (error) {
+    console.error("Error al procesar con IA:", error);
+    alert("Hubo un error al procesar el mensaje con el motor de IA.");
+  } finally {
+    processPreviewBtn.textContent = "Procesar con IA";
+    processPreviewBtn.disabled = false;
+  }
+});
+
+// Función de comunicación con la API de Gemini (Flash 1.5)
+async function procesarMensajeConGemini(texto) {
+  const apiKey = "TU_GEMINI_API_KEY"; // O tu método de carga de API Key
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  const prompt = `Actúa estrictamente como el motor de filtrado y formato S.L.E.R. (Sistema de Lectura y Escrita Recíproco). 
+  Reglas obligatorias:
+  1. Filtra y neutraliza cualquier lenguaje inadecuado.
+  2. Aplica la transformación estricta al formato S.L.E.R. (alternancia de renglones e inversión de signos).
+  3. Devuelve únicamente la versión final purificada y formateada, sin introducciones ni comentarios adicionales.
+  
+  Texto de entrada: "${texto}"`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text.trim();
 }
 
-if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-        signOut(auth);
-    });
+// 4. Envío de Mensajes (Texto o Voz Artificial)
+sendTextBtn.addEventListener('click', () => {
+  if (!mensajePurificadoActual) return;
+  agregarMensajeAlChat(mensajePurificadoActual, 'outgoing');
+  
+  // Limpiar
+  messageInput.value = "";
+  previewContainer.classList.add('hidden');
+  mensajePurificadoActual = "";
+});
+
+sendVoiceBtn.addEventListener('click', () => {
+  if (!mensajePurificadoActual) return;
+  agregarMensajeAlChat(`🔊 [Voz Artificial] ${mensajePurificadoActual}`, 'outgoing');
+  
+  // Reproducir usando síntesis de voz del navegador
+  reproducirVozArtificial(mensajePurificadoActual);
+
+  // Limpiar
+  messageInput.value = "";
+  previewContainer.classList.add('hidden');
+  mensajePurificadoActual = "";
+});
+
+function agregarMensajeAlChat(texto, tipo) {
+  const bubble = document.createElement('div');
+  bubble.className = `message-bubble ${tipo}`;
+  bubble.textContent = texto;
+  messagesContainer.appendChild(bubble);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Lógica de procesamiento S.L.E.R. y Gemini
-async function procesarMensajeConGemini(textoOriginal, anchoLinea) {
-    const GEMINI_API_KEY = "AQAb8RN6KHlXxCJ89VgxJpjviBkQLPTODL5EgW0Qcbkn1j33VDpA"; // Recuerda usar tu clave de Gemini sin espacios iniciales
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-    const promptSistema = `Eres un filtro conversacional de seguridad para una red social. Tu única tarea es analizar el siguiente texto: si contiene lenguaje tóxico, agresivo, insultos o contenido inadecuado, debes neutralizarlo y reescribirlo con un tono totalmente amable, neutral y seguro. Si el texto ya es adecuado, mantenlo intacto. Devuelve ÚNICAMENTE el texto limpio resultante, sin explicaciones ni comillas: "${textoOriginal}"`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptSistema }] }]
-            })
-        });
-
-        const data = await response.json();
-        const textoFiltrado = data.candidates[0].content.parts[0].text.trim();
-        return aplicarSLER(textoFiltrado, anchoLinea);
-
-    } catch (error) {
-        console.error("Error al conectar con Gemini:", error);
-        return aplicarSLER(textoOriginal, anchoLinea);
-    }
+function reproducirVozArtificial(texto) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'es-ES';
+    window.speechSynthesis.speak(utterance);
+  } else {
+    console.warn("La síntesis de voz no es compatible con este navegador.");
+  }
 }
 
-function aplicarSLER(texto, anchoLinea) {
-    const palabras = texto.trim().replace(/\s+/g, ' ').split(' ');
-    let lineas = [];
-    let lineaActual = "";
+// 5. Dictado por Voz (SpeechRecognition nativo)
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'es-ES';
+  recognition.continuous = false;
 
-    for (let palabra of palabras) {
-        if ((lineaActual + " " + palabra).trim().length <= anchoLinea) {
-            lineaActual = lineaActual ? lineaActual + " " + palabra : palabra;
-        } else {
-            if (lineaActual) lineas.push(lineaActual);
-            lineaActual = palabra;
-        }
-    }
-    if (lineaActual) lineas.push(lineaActual);
+  micBtn.addEventListener('click', () => {
+    recognition.start();
+    micBtn.textContent = "🎙️ Escuchando...";
+  });
 
-    let lineasProcesadas = lineas.map((linea, index) => {
-        let numeroRenglon = index + 1;
-        if (numeroRenglon % 2 !== 0) {
-            return linea;
-        } else {
-            let palabrasLinea = linea.split(' ');
-            let invertidas = palabrasLinea.reverse().map((p) => {
-                let signoDetectado = "";
-                let limpia = p;
-                if (p.endsWith(',') || p.endsWith('.')) {
-                    signoDetectado = p.slice(-1);
-                    limpia = p.slice(0, -1);
-                }
-                return signoDetectado ? limpia + " " + signoDetectado : limpia;
-            });
-            return invertidas.join(' ').replace(/\s+([,./])/g, '$1');
-        }
-    });
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    messageInput.value = transcript;
+    micBtn.textContent = "🎙️ Dictar";
+  };
 
-    return lineasProcesadas.join('\n');
-}
+  recognition.onerror = () => {
+    micBtn.textContent = "🎙️ Dictar";
+  };
 
-const btnProcesar = document.getElementById('btn-procesar');
-if (btnProcesar) {
-    btnProcesar.addEventListener('click', async () => {
-        const textoInput = document.getElementById('texto-input').value;
-        if (!textoInput.trim()) return;
-
-        btnProcesar.textContent = "Analizando y procesando...";
-        btnProcesar.disabled = true;
-
-        const contenedorResultado = document.getElementById('resultado');
-        const anchoContenedorPx = contenedorResultado.clientWidth || 300;
-        const anchoLineaDinamico = Math.max(20, Math.floor(anchoContenedorPx / 9));
-
-        const resultadoFinal = await procesarMensajeConGemini(textoInput, anchoLineaDinamico);
-        
-        contenedorResultado.textContent = resultadoFinal;
-        document.getElementById('texto-input').value = "";
-        btnProcesar.textContent = "🔄 Enviar y Aplicar S.L.E.R.";
-        btnProcesar.disabled = false;
-    });
+  recognition.onend = () => {
+    micBtn.textContent = "🎙️ Dictar";
+  };
+} else {
+  micBtn.style.display = 'none'; // Ocultar si el navegador no lo soporta
 }
