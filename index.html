@@ -1,44 +1,67 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.L.E.R. Social</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 15px; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 400px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        textarea, input { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; }
-        button { width: 100%; padding: 12px; margin-top: 10px; background: #00796b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .hidden { display: none; }
-        #resultado { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #eee; }
-    </style>
-    <link rel="icon" href="data:,">
-</head>
-<body>
+<div id="app-container">
+  <!-- Vista 1: Lista de Contactos -->
+  <div id="contacts-view" class="view">
+    <header class="app-header">
+      <span id="user-greeting">Hola, usuario</span>
+      <button id="logout-btn" class="btn-secondary">Cerrar Sesión</button>
+    </header>
+    <main class="contacts-main">
+      <h2>Contactos S.L.E.R.</h2>
+      <p class="subtitle">Selecciona un contacto para interactuar:</p>
+      <ul id="contacts-list" class="contacts-list">
+        <!-- Contactos de prueba para clonar y practicar -->
+        <li class="contact-item" data-contact-id="1" data-contact-name="Amigo de Prueba 1">
+          <div class="avatar">A1</div>
+          <div class="contact-info">
+            <span class="contact-name">Amigo de Prueba 1</span>
+            <span class="contact-status">Disponible para S.L.E.R.</span>
+          </div>
+        </li>
+        <li class="contact-item" data-contact-id="2" data-contact-name="Amigo de Prueba 2">
+          <div class="avatar">A2</div>
+          <div class="contact-info">
+            <span class="contact-name">Amigo de Prueba 2</span>
+            <span class="contact-status">Disponible para S.L.E.R.</span>
+          </div>
+        </li>
+      </ul>
+    </main>
+  </div>
 
-    <div class="container">
-        <h2>S.L.E.R. Social</h2>
+  <!-- Vista 2: Chat Activo y Envío Filtrado -->
+  <div id="chat-view" class="view hidden">
+    <header class="chat-header">
+      <button id="back-to-contacts" class="btn-icon">← Volver</button>
+      <span id="active-chat-name">Chat</span>
+    </header>
+    
+    <main class="chat-main">
+      <!-- Contenedor del chat volátil (sin almacenamiento histórico pesado) -->
+      <div id="messages-container" class="messages-container">
+        <!-- Los mensajes procesados aparecerán aquí de forma temporal -->
+      </div>
+
+      <!-- Panel de composición y filtrado estricto -->
+      <div class="composer-panel">
+        <textarea id="message-input" placeholder="Escribe tu mensaje o usa el micrófono..."></textarea>
         
-        <!-- Sección de Autenticación -->
-        <div id="auth-section">
-            <p>Inicia sesión para interactuar:</p>
-            <button id="btn-login-google">🔑 Ingresar con Google</button>
+        <!-- Controles de entrada por voz y vista previa obligatoria -->
+        <div class="composer-actions">
+          <button id="mic-btn" class="btn-secondary" title="Dictado por voz">🎙️ Dictar</button>
+          <button id="process-preview-btn" class="btn-primary">Procesar con IA</button>
         </div>
 
-        <!-- Sección Principal (Oculta hasta loguearse) -->
-        <div id="app-section" class="hidden">
-            <p id="user-info"></p>
-            <button id="btn-logout" style="background: #d32f2f;">Cerrar Sesión</button>
-            
-            <textarea id="texto-input" rows="3" placeholder="Escribe tu mensaje..."></textarea>
-            <button id="btn-procesar">🔄 Enviar y Aplicar S.L.E.R.</button>
-            
-            <div id="resultado"></div>
+        <!-- Vista previa estricta del mensaje purificado y formateado (No editable) -->
+        <div id="preview-container" class="preview-container hidden">
+          <span class="preview-label">Mensaje purificado (S.L.E.R.):</span>
+          <div id="preview-text-box" class="preview-box"></div>
+          
+          <div class="send-options">
+            <button id="send-text-btn" class="btn-success">Enviar como Texto</button>
+            <button id="send-voice-btn" class="btn-accent">Enviar como Voz Artificial</button>
+          </div>
         </div>
-    </div>
-
-    <!-- Scripts de Firebase y Lógica -->
-    <script type="module" src="app.js"></script>
-</body>
-</html>
+      </div>
+    </main>
+  </div>
+</div>
