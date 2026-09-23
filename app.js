@@ -1,23 +1,21 @@
 // Importar los SDKs de Firebase necesarios desde los CDNs
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { 
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
   signOut, 
   onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-// Configuración de Firebase
+// Configuración de Firebase (Sler Social Net)
 const firebaseConfig = {
-  apiKey: "AIzaSyA1VUXm-OtZE3oX4UgvO6VYUKY7RcneKDg",
-  authDomain: "sler-chat-lab.firebaseapp.com",
-  databaseURL: "https://sler-chat-lab-default-rtdb.firebaseio.com",
-  projectId: "sler-chat-lab",
-  storageBucket: "sler-chat-lab.appfirebasestorage.app",
-  messagingSenderId: "59495460335",
-  appId: "1:59495460335:web:30014b07c4fecc27521a62",
-  measurementId: "G-F1QW9J6B0P"
+  apiKey: "AIzaSyAuK6fNAjriNUawm3xab470Wmy2jbVBLAM",
+  authDomain: "sler-social-net.firebaseapp.com",
+  projectId: "sler-social-net",
+  storageBucket: "sler-social-net.firebasestorage.app",
+  messagingSenderId: "630471350697",
+  appId: "1:630471350697:web:d355d49a84a56e5b6d0cb8"
 };
 
 // Inicializar Firebase
