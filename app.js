@@ -10,7 +10,7 @@ import {
 
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyA1VUxm-0tZE3oX4Ugv06VYUKY7RcneKdg",
+  apiKey: "AIzaSyA1VUXm-OtZE3oX4UgvO6VYUKY7RcneKDg",
   authDomain: "sler-chat-lab.firebaseapp.com",
   databaseURL: "https://sler-chat-lab-default-rtdb.firebaseio.com",
   projectId: "sler-chat-lab",
