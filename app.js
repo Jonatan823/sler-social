@@ -10,7 +10,7 @@ import {
 
 // Configuración de Firebase (Sler Social Net)
 const firebaseConfig = {
-  apiKey: "AIzaSyAuK6fNAjriNUawm3xab470Wmy2jbVBLAM",
+  apiKey: "AQ.Ab8RN6KL3BcW66Dq_bU-UmVphOL3IR8stYHV1m7aSQTNuA45EA",
   authDomain: "sler-social-net.firebaseapp.com",
   projectId: "sler-social-net",
   storageBucket: "sler-social-net.firebasestorage.app",
