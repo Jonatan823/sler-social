@@ -10,7 +10,7 @@ import {
 
 // Configuración de Firebase (Sler Social Net)
 const firebaseConfig = {
-  apiKey: "AQ.Ab8RN6KL3BcW66Dq_bU-UmVphOL3IR8stYHV1m7aSQTNuA45EA",
+  apiKey: "AIzaSyAuK6fNAjriNUawm3xab470Wmy2jbVBLAM",
   authDomain: "sler-social-net.firebaseapp.com",
   projectId: "sler-social-net",
   storageBucket: "sler-social-net.firebasestorage.app",
@@ -126,7 +126,7 @@ processPreviewBtn.addEventListener('click', async () => {
 
 // Función de comunicación con la API de Gemini (Flash 1.5)
 async function procesarMensajeConGemini(texto) {
-  const apiKey = "TU_GEMINI_API_KEY"; // Reemplaza con tu clave de API de Gemini
+  const apiKey = "AQ.Ab8RN6KL3BcW66Dq_bU-UmVphOL3IR8stYHV1m7aSQTNuA45EA"; // Reemplaza con tu clave de API de Gemini
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const prompt = `Actúa estrictamente como el motor de filtrado y formato S.L.E.R. (Sistema de Lectura y Escrita Recíproco). 
