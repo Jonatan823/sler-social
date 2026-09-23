@@ -8,14 +8,16 @@ import {
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// Configuración de Firebase (asegúrate de que coincida con tus credenciales)
+// Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyA1VUxm-0tZE3oX4Ugv06VYUKY7RcneKdg",
   authDomain: "sler-chat-lab.firebaseapp.com",
+  databaseURL: "https://sler-chat-lab-default-rtdb.firebaseio.com",
   projectId: "sler-chat-lab",
-  storageBucket: "sler-chat-lab.appspot.com",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  storageBucket: "sler-chat-lab.appfirebasestorage.app",
+  messagingSenderId: "59495460335",
+  appId: "1:59495460335:web:30014b07c4fecc27521a62",
+  measurementId: "G-F1QW9J6B0P"
 };
 
 // Inicializar Firebase
@@ -52,13 +54,11 @@ let mensajePurificadoActual = "";
 // 1. Manejo de Estado de Autenticación
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Usuario logueado: mostrar vista de contactos, ocultar login y chat
     loginView.classList.add('hidden');
     contactsView.classList.remove('hidden');
     chatView.classList.add('hidden');
     userGreeting.textContent = `Hola, ${user.displayName || 'usuario'}`;
   } else {
-    // Usuario desconectado: mostrar login
     loginView.classList.remove('hidden');
     contactsView.classList.add('hidden');
     chatView.classList.add('hidden');
@@ -92,12 +92,10 @@ contactsList.addEventListener('click', (e) => {
   currentContact = contactName;
   activeChatName.textContent = `Chat con ${contactName}`;
   
-  // Limpiar estados anteriores de composición
   messageInput.value = "";
   previewContainer.classList.add('hidden');
   messagesContainer.innerHTML = "";
 
-  // Cambiar vista a Chat
   contactsView.classList.add('hidden');
   chatView.classList.remove('hidden');
 });
@@ -130,7 +128,7 @@ processPreviewBtn.addEventListener('click', async () => {
 
 // Función de comunicación con la API de Gemini (Flash 1.5)
 async function procesarMensajeConGemini(texto) {
-  const apiKey = "TU_GEMINI_API_KEY"; // O tu método de carga de API Key
+  const apiKey = "TU_GEMINI_API_KEY"; // Reemplaza con tu clave de API de Gemini
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const prompt = `Actúa estrictamente como el motor de filtrado y formato S.L.E.R. (Sistema de Lectura y Escrita Recíproco). 
@@ -158,7 +156,6 @@ sendTextBtn.addEventListener('click', () => {
   if (!mensajePurificadoActual) return;
   agregarMensajeAlChat(mensajePurificadoActual, 'outgoing');
   
-  // Limpiar
   messageInput.value = "";
   previewContainer.classList.add('hidden');
   mensajePurificadoActual = "";
@@ -167,11 +164,8 @@ sendTextBtn.addEventListener('click', () => {
 sendVoiceBtn.addEventListener('click', () => {
   if (!mensajePurificadoActual) return;
   agregarMensajeAlChat(`🔊 [Voz Artificial] ${mensajePurificadoActual}`, 'outgoing');
-  
-  // Reproducir usando síntesis de voz del navegador
   reproducirVozArtificial(mensajePurificadoActual);
 
-  // Limpiar
   messageInput.value = "";
   previewContainer.classList.add('hidden');
   mensajePurificadoActual = "";
@@ -221,5 +215,5 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     micBtn.textContent = "🎙️ Dictar";
   };
 } else {
-  micBtn.style.display = 'none'; // Ocultar si el navegador no lo soporta
+  micBtn.style.display = 'none';
 }
