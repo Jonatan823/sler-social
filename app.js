@@ -1,4 +1,4 @@
-// Importar los SDKs de Firebase necesarios desde los CDNs
+// Importar los SDKs de Firebase y Google Gen AI desde los CDNs oficiales
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { 
   getAuth, 
@@ -7,6 +7,7 @@ import {
   signOut, 
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { GoogleGenAI } from "https://esm.run/@google/genai";
 
 // Configuración de Firebase (Sler Social Net)
 const firebaseConfig = {
@@ -18,10 +19,13 @@ const firebaseConfig = {
   appId: "1:630471350697:web:d355d49a84a56e5b6d0cb8"
 };
 
-// Inicializar Firebase
+// Inicializar Firebase y GenAI
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+
+// Inicializar el cliente de Gemini con tu clave actual de autorización
+const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6KL3BcW66Dq_bU-UmVphOL3IR8stYHV1m7aSQTNuA45EA" });
 
 // Elementos del DOM
 const loginView = document.getElementById('login-view');
@@ -124,11 +128,8 @@ processPreviewBtn.addEventListener('click', async () => {
   }
 });
 
-// Función de comunicación con la API de Gemini (Flash 1.5)
+// Función simplificada con la SDK oficial
 async function procesarMensajeConGemini(texto) {
-  const apiKey = "AQ.Ab8RN6KL3BcW66Dq_bU-UmVphOL3IR8stYHV1m7aSQTNuA45EA";
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-
   const prompt = `Actúa estrictamente como el motor de filtrado y formato S.L.E.R. (Sistema de Lectura y Escrita Recíproco). 
   Reglas obligatorias:
   1. Filtra y neutraliza cualquier lenguaje inadecuado.
@@ -137,23 +138,12 @@ async function procesarMensajeConGemini(texto) {
   
   Texto de entrada: "${texto}"`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
+  const response = await ai.models.generateContent({
+    model: 'gemini-1.5-flash',
+    contents: prompt,
   });
 
-  if (!response.ok) {
-    throw new Error(`Error en la API de Gemini: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text.trim();
+  return response.text.trim();
 }
 
 // 4. Envío de Mensajes (Texto o Voz Artificial)
@@ -221,4 +211,4 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   };
 } else {
   micBtn.style.display = 'none';
-}
+}// Importar los SDKs de Firebase necesarios desde los CDNs
