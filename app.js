@@ -128,22 +128,29 @@ processPreviewBtn.addEventListener('click', async () => {
   }
 });
 
-// Función simplificada con la SDK oficial
 async function procesarMensajeConGemini(texto) {
+  const url = "/api/gemini"; 
+
   const prompt = `Actúa estrictamente como el motor de filtrado y formato S.L.E.R. (Sistema de Lectura y Escrita Recíproco). 
   Reglas obligatorias:
   1. Filtra y neutraliza cualquier lenguaje inadecuado.
   2. Aplica la transformación estricta al formato S.L.E.R. (alternancia de renglones e inversión de signos).
   3. Devuelve únicamente la versión final purificada y formateada, sin introducciones ni comentarios adicionales.
-  
+
   Texto de entrada: "${texto}"`;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-1.5-flash',
-    contents: prompt,
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: prompt })
   });
 
-  return response.text.trim();
+  if (!response.ok) {
+    throw new Error(`Error en el servidor puente: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text.trim();
 }
 
 // 4. Envío de Mensajes (Texto o Voz Artificial)
