@@ -31,7 +31,11 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    return res.status(200).json(data);
+    
+    // Extraemos el texto de forma segura para enviarlo limpio al cliente
+    const respuestaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo procesar la respuesta";
+
+    return res.status(200).json({ resultado: respuestaTexto });
   } catch (error) {
     return res.status(500).json({ error: 'Error al conectar con Gemini' });
   }
