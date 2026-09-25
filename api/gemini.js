@@ -19,11 +19,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: texto }] }]
@@ -32,8 +31,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
-    // Extraemos el texto de forma segura para enviarlo limpio al cliente
-    const respuestaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo procesar la respuesta";
+    // Captura segura de la respuesta de Gemini en cualquiera de sus variantes
+    const respuestaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text || data.error?.message || JSON.stringify(data);
 
     return res.status(200).json({ resultado: respuestaTexto });
   } catch (error) {
