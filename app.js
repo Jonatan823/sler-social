@@ -150,17 +150,8 @@ async function procesarMensajeConGemini(texto) {
   }
 
   const data = await response.json();
-  return data.resultado.trim();
+  return data.resultado.trim(); // <-- Este return está bien porque está dentro de la función
 }
-
-  if (!response.ok) {
-    throw new Error(`Error en el servidor puente: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text.trim();
-}
-
 // 4. Envío de Mensajes (Texto o Voz Artificial)
 sendTextBtn.addEventListener('click', () => {
   if (!mensajePurificadoActual) return;
