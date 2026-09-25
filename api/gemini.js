@@ -1,5 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -21,17 +19,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: apiKey });
-    
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: texto,
+    // Usamos el endpoint estándar que mapea correctamente el modelo flash actual
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: texto }] }]
+      })
     });
 
-    const respuestaTexto = response.text || "No se pudo procesar la respuesta";
+    const data = await response.json();
+    
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    const respuestaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo procesar la respuesta";
 
     return res.status(200).json({ resultado: respuestaTexto });
   } catch (error) {
-    return res.status(500).json({ error: 'Error al conectar con Gemini: ' + error.message });
+    return res.status(500).json({ error: 'Error al conectar con Gemini' });
   }
 }
