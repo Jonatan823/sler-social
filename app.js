@@ -136,7 +136,7 @@ async function procesarMensajeConGemini(texto) {
   1. Filtra y neutraliza cualquier lenguaje inadecuado.
   2. Aplica la transformación estricta al formato S.L.E.R. (alternancia de renglones e inversión de signos).
   3. Devuelve únicamente la versión final purificada y formateada, sin introducciones ni comentarios adicionales.
-
+  
   Texto de entrada: "${texto}"`;
 
   const response = await fetch(url, {
@@ -144,6 +144,14 @@ async function procesarMensajeConGemini(texto) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ texto: prompt })
   });
+
+  if (!response.ok) {
+    throw new Error(`Error en el servidor puente: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.resultado.trim();
+}
 
   if (!response.ok) {
     throw new Error(`Error en el servidor puente: ${response.status}`);
